@@ -17,6 +17,16 @@ void main_args(int argc, char* argv[], struct main_data* data){
   data->n_clients = atoi(argv[5]);
 }
 
+void create_dynamic_memory_buffers(struct main_data* data){
+  data->restaurant_pids = calloc(data->n_restaurants, sizeof(pid_t));
+  data->driver_pids = calloc(data->n_drivers, sizeof(pid_t));
+  data->client_pids = calloc(data->n_clients, sizeof(pid_t));
+
+  data->restaurant_stats = calloc(data->n_restaurants, sizeof(int));
+  data->driver_stats = calloc(data->n_drivers, sizeof(pid_t));
+  data->client_stats = calloc(data->n_clients, sizeof(pid_t));
+}
+
 int main(int argc, char* argv[]){
   //init data structures
   struct main_data* data = create_dynamic_memory(sizeof(struct main_data));
@@ -42,6 +52,6 @@ int main(int argc, char* argv[]){
   destroy_dynamic_memory(buffers->rest_driv);
   destroy_dynamic_memory(buffers->driv_cli);
   destroy_dynamic_memory(buffers);
-  
+
   return 0;
 }
