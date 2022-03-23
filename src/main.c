@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "memory.h"
+#include "process.h"
 
 void main_args(int argc, char* argv[], struct main_data* data){
   //argv[0] -> prog name, irrelevant
