@@ -1,1 +1,24 @@
-# magnaeats
+# MagnaEats
+MagnaEats, a wordplay on Uber Eats, is a program written as a project for the Operating Systems Curricular Unit of the school year of 2021/2022, Bachelor's in Computer Engineering at the Faculty of Sciences of the University of Lisbon (Faculdade de Ciências da Universidade de Lisboa).
+## Updates
+_Nothing new yet!_
+## Building and using
+You can go on a big tour and use **gcc** to compile and link everything, but we recommend using `make` and the supplied Makefile to automate this process:
+```
+$ make
+```
+Afterwards, just run the program. Be aware that MagnaEats has fancy needs, so you need to specify some stuff:
+```
+$ ./magnaeats max_ops buffers_size n_restaurants n_drivers n_clients
+```
+Where:
+- `max_ops` is the maximum number of orders that can be created;
+- `buffers_size` is the maximum size of the used memory buffers;
+- `n_restaurants` is the maximum number of restaurants available;
+- `n_drivers` is the maximum number of delivery drivers available;
+- `n_clients` is the maximum number of clients available.
+### Commands
+- `request <client> <restaurant> <dish>` - creates a delivery request for the `restaurant`, made by a `client` asking for a `dish`;
+- `status <id>` - checks the status of the order with the id number `id`;
+- `stop` - terminates the execution of the **MagnaEats** system;
+- `help` - shows the help info for the options above.
