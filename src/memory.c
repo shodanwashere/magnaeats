@@ -39,5 +39,54 @@ void destroy_dynamic_memory(void* ptr){
 * Se não houver nenhuma posição livre, não escreve nada.
 */
 void write_main_rest_buffer(struct rnd_access_buffer* buffer, int buffer_size, struct operation* op){
-  
+  // TODO
+}
+
+/* Função que escreve uma operação no buffer de memória partilhada entre os restaurantes
+* e os motoristas. A operação deve ser escrita numa posição livre do buffer,
+* tendo em conta o tipo de buffer e as regras de escrita em buffers desse tipo.
+* Se não houver nenhuma posição livre, não escreve nada.
+*/
+void write_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, struct operation* op){
+  // TODO
+}
+
+
+/* Função que escreve uma operação no buffer de memória partilhada entre os motoristas
+* e os clientes. A operação deve ser escrita numa posição livre do buffer,
+* tendo em conta o tipo de buffer e as regras de escrita em buffers desse tipo.
+* Se não houver nenhuma posição livre, não escreve nada.
+*/
+void write_driver_client_buffer(struct rnd_access_buffer* buffer, int buffer_size, struct operation* op){
+  // TODO
+}
+
+
+/* Função que lê uma operação do buffer de memória partilhada entre a Main
+* e os restaurantes, se houver alguma disponível para ler que seja direcionada ao restaurante especificado.
+* A leitura deve ser feita tendo em conta o tipo de buffer e as regras de leitura em buffers desse tipo.
+* Se não houver nenhuma operação disponível, afeta op->id com o valor -1.
+*/
+void read_main_rest_buffer(struct rnd_access_buffer* buffer, int rest_id, int buffer_size, struct operation* op){
+  // TODO
+}
+
+
+/* Função que lê uma operação do buffer de memória partilhada entre os restaurantes e os motoristas,
+* se houver alguma disponível para ler (qualquer motorista pode ler qualquer operação).
+* A leitura deve ser feita tendo em conta o tipo de buffer e as regras de leitura em buffers desse tipo.
+* Se não houver nenhuma operação disponível, afeta op->id com o valor -1.
+*/
+void read_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, struct operation* op){
+  // TODO
+}
+
+
+/* Função que lê uma operação do buffer de memória partilhada entre os motoristas e os clientes,
+* se houver alguma disponível para ler dirijida ao cliente especificado. A leitura deve
+* ser feita tendo em conta o tipo de buffer e as regras de leitura em buffers desse tipo. Se não houver
+* nenhuma operação disponível, afeta op->id com o valor -1.
+*/
+void read_driver_client_buffer(struct rnd_access_buffer* buffer, int client_id, int buffer_size, struct operation* op){
+  // TODO
 }
