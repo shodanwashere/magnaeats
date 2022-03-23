@@ -49,5 +49,8 @@ int wait_process(int process_id){
   int status = 0;
   /* receive from */ waitpid(process_id, &status, 0);
 
-  // TODO
+  if(WIFEXITED(status))
+    // return item from waitpid
+  else
+    return -1;
 }
