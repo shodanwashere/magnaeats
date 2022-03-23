@@ -2,6 +2,7 @@
 #include "main.h"
 #include "restaurant.h"
 #include "driver.h"
+#include "client.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
