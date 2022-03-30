@@ -7,6 +7,15 @@
 #include <unistd.h>
 #include "memory.h"
 
+#define STR_SHM_MAIN_REST_PTR 			"SHM_MAIN_REST_PTR"
+#define STR_SHM_MAIN_REST_BUFFER 		"SHM_MAIN_REST_BUFFER"
+#define STR_SHM_REST_DRIVER_PTR 		"SHM_REST_DRIVER_PTR"
+#define STR_SHM_REST_DRIVER_BUFFER 		"SHM_REST_DRIVER_BUFFER"
+#define STR_SHM_DRIVER_CLIENT_PTR 		"SHM_DRIVER_CLIENT_PTR"
+#define STR_SHM_DRIVER_CLIENT_BUFFER 	"SHM_DRIVER_CLIENT_BUFFER"
+#define STR_SHM_RESULTS					"SHM_RESULTS"
+#define STR_SHM_TERMINATE				"SHM_TERMINATE"
+
 struct pointers { 																					
 	int in;  																						
 	int out; 																						
@@ -52,8 +61,9 @@ struct communication_buffers {
 * getuid() a name, para tornar o nome único para o processo.
 */
 void *create_shared_memory(char *name, int size){
-  strcat(name, itoa(getuid()));
-  int shm_fd = shm_open(name, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
+  char *proc_name;
+  sprintf(proc_name, "/%s%d", name, getuid());
+  int shm_fd = shm_open(proc_name, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
   ftruncate(shm_fd, size);
   void *ptr = mmap(0, size, PROT_WRITE, MAP_SHARED, shm_fd, 0);
   close(shm_fd);

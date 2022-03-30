@@ -3,6 +3,27 @@
 #include "memory.h"
 #include "process.h"
 
+struct main_data {
+	int max_ops;			//número máximo de operações
+	int buffers_size;		//tamanho máximo dos buffers de mem. partilhada
+	
+	int n_restaurants;		//número de restaurantes
+	int n_drivers;			//número de motoristas
+	int n_clients;			//número de clientes
+	
+	int *restaurant_pids;	//process ids de restaurantes
+	int *driver_pids;		//process ids de motoristas
+	int *client_pids;		//process ids de clientes
+	
+	int* restaurant_stats;	//nº de operações encaminhadas por cada restaurante
+	int* driver_stats;		//nº de operações respondidas por cada motorista
+	int* client_stats;		//nº de operações recebidas por cada cliente
+	
+	struct operation* results;	//array com histórico de ops executadas
+	
+	int* terminate; //flag booleana, valor 1 indica que MAGNAEATS deve terminar a sua execução
+};
+
 void main_args(int argc, char* argv[], struct main_data* data){
   //argv[0] -> prog name, irrelevant
   //argv[1] -> maximum number of operations
@@ -24,12 +45,25 @@ void create_dynamic_memory_buffers(struct main_data* data){
   data->client_pids = calloc(data->n_clients, sizeof(pid_t));
 
   data->restaurant_stats = calloc(data->n_restaurants, sizeof(int));
-  data->driver_stats = calloc(data->n_drivers, sizeof(pid_t));
-  data->client_stats = calloc(data->n_clients, sizeof(pid_t));
+  data->driver_stats = calloc(data->n_drivers, sizeof(int));
+  data->client_stats = calloc(data->n_clients, sizeof(int));
 }
 
+/* Função que reserva a memória partilhada necessária para a execução do
+* MAGNAEATS. É necessário reservar memória partilhada para todos os buffers da
+* estrutura communication_buffers, incluindo os buffers em si e respetivos
+* pointers, assim como para o array data->results e variável data->terminate.
+* Para tal, pode ser usada a função create_shared_memory.
+*/
 void create_shared_memory_buffers(struct main_data* data, struct communication_buffers* buffers){
-  //TODO
+  buffers->main_rest->ptrs = create_shared_memory(STR_SHM_MAIN_REST_PTR, data->buffers_size * sizeof(int));
+  buffers->main_rest->buffer = create_shared_memory(STR_SHM_MAIN_REST_BUFFER, data->buffers_size * sizeof(struct operation));
+  buffers->rest_driv->ptrs = create_shared_memory(STR_SHM_REST_DRIVER_PTR, data->buffers_size * sizeof(struct pointers));
+  buffers->rest_driv->buffer = create_shared_memory(STR_SHM_REST_DRIVER_BUFFER, data->buffers_size * sizeof(struct operation));
+  buffers->driv_cli->ptrs = create_shared_memory(STR_SHM_DRIVER_CLIENT_PTR, data->buffers_size * sizeof(int));
+  buffers->driv_cli->buffer = create_shared_memory(STR_SHM_DRIVER_CLIENT_BUFFER, data->buffers_size * sizeof(struct operation));
+  data->results = create_shared_memory(STR_SHM_RESULTS, data->max_ops * sizeof(struct operation));
+  data->terminate = create_shared_memory(STR_SHM_TERMINATE, sizeof(int));
 }
 
 void launch_processes(struct communication_buffers* buffers, struct main_data* data){

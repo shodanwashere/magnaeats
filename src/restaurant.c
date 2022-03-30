@@ -6,7 +6,7 @@ int execute_restaurant(int rest_id, struct communication_buffers* buffers, struc
   int ops_procs = 0;
   struct operation next_consumed;
   int n;
-  while(data->terminate != 1){
+  while(*(data->terminate) != 1){
     restaurant_receive_operation(&next_consumed, rest_id, buffers, data);
     if(next_consumed.id != -1 && data->terminate == 0){
       restaurant_process_operation(&next_consumed, rest_id, data, &ops_procs);
@@ -17,7 +17,7 @@ int execute_restaurant(int rest_id, struct communication_buffers* buffers, struc
 }
 
 void restaurant_receive_operation(struct operation* op, int rest_id, struct communication_buffers* buffers, struct main_data* data){
-  if(data->terminate == 0){
+  if(*(data->terminate) == 0){
     read_main_rest_buffer(buffers->main_rest, rest_id, data->buffers_size, op);
   }
 }
