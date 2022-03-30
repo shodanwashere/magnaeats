@@ -9,7 +9,7 @@
 
 int launch_restaurant(int restaurant_id, struct communication_buffers* buffers, struct main_data* data){
   // TODO preemptive forking action
-  pid_t restaurant_process;
+  int restaurant_process;
   if((restaurant_process = fork()) == -1){
     // do what? please elaborate on discord, i actually dont know
     exit(-1);
@@ -22,7 +22,7 @@ int launch_restaurant(int restaurant_id, struct communication_buffers* buffers, 
 
 int launch_driver(int driver_id, struct communication_buffers* buffers, struct main_data* data){
   // TODO preemptive forking action
-  pid_t driver_process;
+  int driver_process;
   if((driver_process = fork()) == -1){
     // do what? please elaborate on discord, i actually dont know
     exit(-1);
@@ -35,7 +35,7 @@ int launch_driver(int driver_id, struct communication_buffers* buffers, struct m
 
 int launch_client(int client_id, struct communication_buffers* buffers, struct main_data* data){
   // TODO preemptive forking action
-  pid_t client_process;
+  int client_process;
   if((client_process = fork()) == -1){
     // do what? please elaborate on discord, i actually dont know
     exit(-1);
@@ -48,10 +48,10 @@ int launch_client(int client_id, struct communication_buffers* buffers, struct m
 
 int wait_process(int process_id){
   int status = 0;
-  /* receive from */ waitpid(process_id, &status, 0);
+  waitpid(process_id, &status, 0);
 
   if(WIFEXITED(status))
-    // return item from waitpid
+    return WEXITSTATUS(status);
   else
     return -1;
 }
