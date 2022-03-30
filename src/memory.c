@@ -83,6 +83,8 @@ void *create_dynamic_memory(int size){
 /* Função que liberta uma zona de memória partilhada previamente reservada.
 */
 void destroy_shared_memory(char* name, void* ptr, int size){
+  char *proc_name;
+  sprintf(proc_name, "/%s%d", name, getuid());
   munmap(ptr, size);
   shm_unlink(name);
 }
