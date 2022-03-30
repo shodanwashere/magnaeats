@@ -76,7 +76,29 @@ void launch_processes(struct communication_buffers* buffers, struct main_data* d
 * stop - termina o execução do MAGNAEATS através da função stop_execution
 * help - imprime informação sobre os comandos disponiveis
 */
-void user_interaction(struct communication_buffers* buffers, struct main_data* data);
+void user_interaction(struct communication_buffers* buffers, struct main_data* data){
+  char help_msg[] = "Ações disponíveis:\n\trequest client restaurant dish - criar um novo pedido\n\tstatus id - consultar o estado de um pedido\n\tstop - termina a execução do magnaeats\n\thelp - imprime informação sobre as ações disponíveis\n";
+  while(*(data->terminate) == 0){
+    printf("Introduzir ação: ");
+    char *action_line;
+    gets(action_line);
+    char *action;
+    sscanf(action_line, "%s", action);
+    if(strcmp(action, "request")){
+      int client, restaurant;
+      char *dish;
+      sscanf(action_line, "%*s %d %d %s", &client, &restaurant, dish);
+      create_request(/* someone put the op counter working*/, buffers, data);
+      continue;
+    }
+    if(strcmp(action, "status")){
+      int id;
+      sscanf(action_line,"%*s %d",&id);
+      // readstatus
+    }
+    // TODO
+  }
+}
 
 /* Se o limite de operações ainda não tiver sido atingido, cria uma nova
 * operação identificada pelo valor atual de op_counter e com os dados passados em
@@ -147,7 +169,20 @@ void write_statistics(struct main_data* data){
 * reservados na estrutura data.
 */
 void destroy_memory_buffers(struct main_data* data, struct communication_buffers* buffers){
-  //TODO
+  destroy_dynamic_memory(data->restaurant_pids);
+  destroy_dynamic_memory(data->driver_pids);
+  destroy_dynamic_memory(data->client_pids);
+  destroy_dynamic_memory(data->restaurant_stats);
+  destroy_dynamic_memory(data->driver_stats);
+  destroy_dynamic_memory(data->client_stats);
+  destroy_shared_memory(STR_SHM_MAIN_REST_PTR, buffers->main_rest->ptrs, data->buffers_size * sizeof(int));
+  destroy_shared_memory(STR_SHM_MAIN_REST_BUFFER, buffers->main_rest->buffer, data->buffers_size * sizeof(struct operation));
+  destroy_shared_memory(STR_SHM_REST_DRIVER_PTR, buffers->rest_driv->ptrs, data->buffers_size * sizeof(struct pointers));
+  destroy_shared_memory(STR_SHM_REST_DRIVER_BUFFER, buffers->rest_driv->buffer, data->buffers_size * sizeof(struct operation));
+  destroy_shared_memory(STR_SHM_DRIVER_CLIENT_PTR, buffers->driv_cli->ptrs, data->buffers_size * sizeof(int));
+  destroy_shared_memory(STR_SHM_DRIVER_CLIENT_BUFFER,buffers->driv_cli->buffer, data->buffers_size * sizeof(struct operation));
+  destroy_shared_memory(STR_SHM_RESULTS,data->results, data->max_ops * sizeof(struct operation));
+  destroy_shared_memory(STR_SHM_TERMINATE, data->terminate, sizeof(int));
 }
 
 int main(int argc, char* argv[]){
