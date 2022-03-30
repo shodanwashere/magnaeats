@@ -17,6 +17,7 @@ void *create_shared_memory(char *name, int size){
   int shm_fd = shm_open(name, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
   ftruncate(shm_fd, size);
   void *ptr = mmap(0, size, PROT_WRITE, MAP_SHARED, shm_fd, 0);
+  close(shm_fd);
   return ptr;
 }
 
@@ -33,7 +34,8 @@ void *create_dynamic_memory(int size){
 /* Função que liberta uma zona de memória partilhada previamente reservada.
 */
 void destroy_shared_memory(char* name, void* ptr, int size){
-  // TODO
+  munmap(ptr, size);
+  shm_unlink(name);
 }
 
 /* Função que liberta uma zona de memória dinâmica previamente reservada.
