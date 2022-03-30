@@ -7,6 +7,45 @@
 #include <unistd.h>
 #include "memory.h"
 
+struct pointers { 																					
+	int in;  																						
+	int out; 																						
+};																								
+
+//estrutura que representa um buffer circular
+struct circular_buffer { 	
+	struct pointers *ptrs;
+	struct operation* buffer;
+};
+
+//estrutura que representa um buffer de acesso aleatório
+struct rnd_access_buffer {
+	int* ptrs;
+	struct operation* buffer;
+};
+
+
+//Estrutura que representa uma operação (pedido/resposta)
+struct operation {
+	int id; 					//id da operação
+	int requested_rest;			//id do restaurante requisitado
+	int requesting_client;		//id do cliente que fez o pedido
+	char* requested_dish;		//nome do(s) prato(s) pedido(s)
+	
+	char status;				//estado da operação
+	int receiving_rest;			//id do restaurante que recebeu pedido
+	int receiving_driver;		//id do motorista que fez entrega
+	int receiving_client;		//id do cliente que recebeu a encomenda
+};
+
+
+//estrutura que agrega os shared memory buffers necessários para comunicação entre processos
+struct communication_buffers {
+	struct rnd_access_buffer* main_rest; 		//buffer para main enviar pedidos a restaurantes
+	struct circular_buffer* rest_driv;	//buffer para restaurantes encaminharem pedidos a motoristas
+	struct rnd_access_buffer* driv_cli;  		//buffer para motoristas entregarem pedidos aos clientes
+};
+
 /* Função que reserva uma zona de memória partilhada com tamanho indicado
 * por size e nome name, preenche essa zona de memória com o valor 0, e
 * retorna um apontador para a mesma. Pode concatenar o resultado da função
@@ -50,7 +89,15 @@ void destroy_dynamic_memory(void* ptr){
 * Se não houver nenhuma posição livre, não escreve nada.
 */
 void write_main_rest_buffer(struct rnd_access_buffer* buffer, int buffer_size, struct operation* op){
-  // TODO
+  int n;
+  int* gottem = 0;
+  for(n = 0; n < buffer_size && !gottem; n++){
+    if(buffer->ptrs[n] == 0){
+      buffer->buffer[n] = *op;
+      buffer->ptrs[n] = 1;
+      gottem = 1;
+    }
+  }
 }
 
 /* Função que escreve uma operação no buffer de memória partilhada entre os restaurantes
@@ -79,7 +126,20 @@ void write_driver_client_buffer(struct rnd_access_buffer* buffer, int buffer_siz
 * Se não houver nenhuma operação disponível, afeta op->id com o valor -1.
 */
 void read_main_rest_buffer(struct rnd_access_buffer* buffer, int rest_id, int buffer_size, struct operation* op){
-  // TODO
+  int n;
+  int* gottem = 0;
+  struct operation *oper;
+  for(n = 0; n < buffer_size && !gottem; n++){ // cycle stops when we get an operation for the restaurant or if
+    if(buffer->ptrs[n] == 1){                  // there are no operations for the restaurant at all
+      oper = &(buffer->buffer[n]);
+      gottem = (oper->requested_rest == rest_id) ? 1 : 0;
+      if(oper->requested_rest == rest_id){
+        memcpy(op, oper, sizeof(struct operation));
+        buffer->ptrs[n] = 0;
+      }
+    }
+  }
+  if(!gottem) op->id = -1;
 }
 
 
