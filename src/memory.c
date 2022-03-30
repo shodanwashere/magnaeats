@@ -1,5 +1,10 @@
 #include <stdlib.h>
 #include <strings.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <unistd.h>
 #include "memory.h"
 
 /* Função que reserva uma zona de memória partilhada com tamanho indicado
@@ -8,7 +13,11 @@
 * getuid() a name, para tornar o nome único para o processo.
 */
 void *create_shared_memory(char *name, int size){
-  // TODO
+  strcat(name, itoa(getuid()));
+  int shm_fd = shm_open(name, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
+  ftruncate(shm_fd, size);
+  void *ptr = mmap(0, size, PROT_WRITE, MAP_SHARED, shm_fd, 0);
+  return ptr;
 }
 
 /* Função que reserva uma zona de memória dinâmica com tamanho indicado
