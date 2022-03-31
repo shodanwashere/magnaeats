@@ -136,7 +136,15 @@ void write_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, s
 * Se não houver nenhuma posição livre, não escreve nada.
 */
 void write_driver_client_buffer(struct rnd_access_buffer* buffer, int buffer_size, struct operation* op){
-  // TODO
+  int n;
+  int* gottem = 0;
+  for(n = 0; n < buffer_size && !gottem; n++){
+    if(buffer->ptrs[n] == 0){
+      buffer->buffer[n] = *op;
+      buffer->ptrs[n] = 1;
+      gottem = 1;
+    }
+  }
 }
 
 
@@ -147,13 +155,13 @@ void write_driver_client_buffer(struct rnd_access_buffer* buffer, int buffer_siz
 */
 void read_main_rest_buffer(struct rnd_access_buffer* buffer, int rest_id, int buffer_size, struct operation* op){
   int n;
-  int* gottem = 0;
+  int gottem = 0;
   struct operation *oper;
   for(n = 0; n < buffer_size && !gottem; n++){ // cycle stops when we get an operation for the restaurant or if
     if(buffer->ptrs[n] == 1){                  // there are no operations for the restaurant at all
       oper = &(buffer->buffer[n]);
       gottem = (oper->requested_rest == rest_id) ? 1 : 0;
-      if(oper->requested_rest == rest_id){
+      if(gottem){
         memcpy(op, oper, sizeof(struct operation));
         buffer->ptrs[n] = 0;
       }
@@ -179,5 +187,18 @@ void read_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, st
 * nenhuma operação disponível, afeta op->id com o valor -1.
 */
 void read_driver_client_buffer(struct rnd_access_buffer* buffer, int client_id, int buffer_size, struct operation* op){
-  // TODO
+  int n;
+  int gottem = 0;
+  struct operation *oper;
+  for(n = 0; n < buffer_size && !gottem; n++){ // cycle stops when we get an operation for the restaurant or if
+    if(buffer->ptrs[n] == 1){                  // there are no operations for the restaurant at all
+      oper = &(buffer->buffer[n]);
+      gottem = (oper->requesting_client == client_id) ? 1 : 0;
+      if(gottem){
+        memcpy(op, oper, sizeof(struct operation));
+        buffer->ptrs[n] = 0;
+      }
+    }
+  }
+  if(!gottem) op->id = -1;
 }
