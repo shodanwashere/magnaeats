@@ -66,8 +66,22 @@ void create_shared_memory_buffers(struct main_data* data, struct communication_b
   data->terminate = create_shared_memory(STR_SHM_TERMINATE, sizeof(int));
 }
 
+/* Função que inicia os processos dos restaurantes, motoristas e
+* clientes. Para tal, pode usar as funções launch_*,
+* guardando os pids resultantes nos arrays respetivos
+* da estrutura data.
+*/
 void launch_processes(struct communication_buffers* buffers, struct main_data* data){
-  //TODO
+  int n;
+  // initiating restaurants
+  for(n = 0; n < data->n_restaurants; n++)
+    data->restaurant_pids[n] = launch_restaurant(n, buffers, data);
+  // initiating drivers
+  for(n = 0; n < data->n_drivers; n++)
+    data->driver_pids[n] = launch_driver(n, buffers, data);
+  // initiating clients
+  for(n = 0; n < data->n_clients; n++)
+    data->client_pids[n] = launch_client(n, buffers, data);
 }
 
 /* Função que faz interação do utilizador, podendo receber 4 comandos:
