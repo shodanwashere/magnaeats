@@ -79,22 +79,25 @@ void launch_processes(struct communication_buffers* buffers, struct main_data* d
 void user_interaction(struct communication_buffers* buffers, struct main_data* data){
   char help_msg[] = "Ações disponíveis:\n\trequest client restaurant dish - criar um novo pedido\n\tstatus id - consultar o estado de um pedido\n\tstop - termina a execução do magnaeats\n\thelp - imprime informação sobre as ações disponíveis\n";
   while(*(data->terminate) == 0){
-    printf("Introduzir ação: ");
+    printf("Introduzir ação:");
     char *action_line;
     gets(action_line);
     char *action;
     sscanf(action_line, "%s", action);
-    if(strcmp(action, "request")){
+    if(strcmp(action, "request") == 0){
       int client, restaurant;
       char *dish;
       sscanf(action_line, "%*s %d %d %s", &client, &restaurant, dish);
       create_request(/* someone put the op counter working*/, buffers, data);
       continue;
     }
-    if(strcmp(action, "status")){
+    if(strcmp(action, "status") == 0){
       int id;
       sscanf(action_line,"%*s %d",&id);
       // readstatus
+    }
+    if(strcmp(action, "help") == 0){
+      printf("%s", help_msg);
     }
     // TODO
   }
