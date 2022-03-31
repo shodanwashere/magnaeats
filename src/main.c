@@ -155,7 +155,10 @@ void stop_execution(struct main_data* data, struct communication_buffers* buffer
 * wait_process do process.h.
 */
 void wait_processes(struct main_data* data){
-  
+  int n;
+  for(n = 0; n < data->n_restaurants; n++) wait_process(data->restaurant_pids[n]); // waits for the restaurants
+  for(n = 0; n < data->n_drivers; n++) wait_process(data->driver_pids[n]);  // waits for the drivers
+  for(n = 0; n < data->n_clients; n++) wait_process(data->client_pids[n]);  // waits for the clients
 }
 
 /* Função que imprime as estatisticas finais do MAGNAEATS, nomeadamente quantas
