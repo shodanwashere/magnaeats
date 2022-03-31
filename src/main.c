@@ -99,7 +99,8 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
     if(strcmp(action, "help") == 0){
       printf("%s", help_msg);
     }
-    // TODO
+    if(strcmp(action, "stop"))
+      stop_execution(data, buffers);
   }
 }
 
@@ -126,7 +127,7 @@ void read_status(struct main_data* data);
 * reservadas. Para tal, pode usar as outras funções auxiliares do main.h.
 */
 void stop_execution(struct main_data* data, struct communication_buffers* buffers){
-  data->terminate = 1;
+  *(data->terminate) = 1;
 
   printf("Terminando o MAGNAEATS!");
   wait_processes(data);
@@ -140,7 +141,7 @@ void stop_execution(struct main_data* data, struct communication_buffers* buffer
 * wait_process do process.h.
 */
 void wait_processes(struct main_data* data){
-  //TODO
+  
 }
 
 /* Função que imprime as estatisticas finais do MAGNAEATS, nomeadamente quantas
