@@ -100,6 +100,7 @@ void launch_processes(struct communication_buffers* buffers, struct main_data* d
 */
 void user_interaction(struct communication_buffers* buffers, struct main_data* data){
   char help_msg[] = "Ações disponíveis:\n\trequest client restaurant dish - criar um novo pedido\n\tstatus id - consultar o estado de um pedido\n\tstop - termina a execução do magnaeats\n\thelp - imprime informação sobre as ações disponíveis\n";
+  int op_n = 0;
   while(*(data->terminate) == 0){
     printf("Introduzir ação:");
     char *action_line;
@@ -107,23 +108,22 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
     char *action;
     sscanf(action_line, "%s", action);
     if(strcmp(action, "request") == 0){
-      int client, restaurant;
-      char *dish;
-      sscanf(action_line, "%*s %d %d %s", &client, &restaurant, dish);
-      create_request(/* someone put the op counter working*/, buffers, data);
+      create_request(op_n, buffers, data);
       continue;
     }
     if(strcmp(action, "status") == 0){
-      int id;
-      sscanf(action_line,"%*s %d",&id);
-      // readstatus
+      read_status(data);
+      continue;
     }
     if(strcmp(action, "help") == 0){
       printf("%s", help_msg);
+      continue;
     }
     if(strcmp(action, "stop"))
       stop_execution(data, buffers);
+      continue;
   }
+  return;
 }
 
 /* Se o limite de operações ainda não tiver sido atingido, cria uma nova
@@ -131,7 +131,22 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
 * argumento, escrevendo a mesma no buffer de memória partilhada entre main e restaurantes.
 * Imprime o id da operação e incrementa o contador de operações op_counter.
 */
-void create_request(int* op_counter, struct communication_buffers* buffers, struct main_data* data);
+void create_request(int* op_counter, struct communication_buffers* buffers, struct main_data* data){
+  if(*op_counter < data->max_ops){
+    int client_id; printf("Insira o id do cliente: "); scanf("%d", &client_id);
+    int rest_id; printf("Insira o id do restaurante: "); scanf("%d", &rest_id);
+    char *dish; printf("Escreva o nome do prato (sem espaços): "); fgets(dish, 20, stdin);
+    struct operation op;
+    op.id = *op_counter;
+    op.requested_rest = rest_id;
+    op.receiving_client = client_id;
+    strcpy(op.requested_dish, dish);
+    op.status = 'I';
+    write_main_rest_buffer(buffers->main_rest, data->buffers_size, &op);
+    printf("O processo #%d foi criado!", *op_counter);
+    *op_counter += 1;
+  }
+}
 
 /* Função que lê um id de operação do utilizador e verifica se a mesma
 * é valida. Em caso afirmativo,
@@ -139,7 +154,26 @@ void create_request(int* op_counter, struct communication_buffers* buffers, stru
 * que fez o pedido, o id do restaurante requisitado, o nome do prato pedido
 * e os ids do restaurante, motorista, e cliente que a receberam e processaram.
 */
-void read_status(struct main_data* data);
+void read_status(struct main_data* data){
+  int op_id; printf("Introduza o id da operação: "); scanf("%d", &op_id);
+  if(op_id < data->max_ops && op_id >= 0){
+    // check if it exists
+      struct operation op = data->results[op_id];
+      if(op.status != NULL){
+        printf("Pedido %d com estado %c requisitado pelo cliente %d ao restaurante %d com o prato %s, ", op.id, op.status, op.requesting_client, op.requested_rest, op.requested_dish);
+        switch(op.status){
+          case 'I' : printf("ainda não foi recebido no restaurante!\n"); break;
+          case 'R' : printf("foi tratado pelo restaurante %d, ainda não foi encaminhado para um motorista!\n", op.receiving_rest); break;
+          case 'D' : printf("foi tratado pelo restaurante %d, encaminhado pelo motorista %d, mas ainda não foi recebido pelo cliente!", op.receiving_rest, op.receiving_driver);
+          case 'C' : printf("foi tratado pelo restaurante %d, encaminhado pelo motorista %d, e enviado ao cliente %d!\n", op.receiving_rest, op.receiving_driver, op.receiving_client);
+        }
+      } else {
+        printf("O pedido %d ainda não é valido!\n", op_id);
+      }
+  } else {
+    printf("O pedido %d ainda não é valido!\n", op_id);
+  }
+}
 
 /* Função que termina a execução do programa MAGNAEATS. Deve começar por
 * afetar a flag data->terminate com o valor 1. De seguida, e por esta
