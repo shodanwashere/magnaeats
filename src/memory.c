@@ -126,7 +126,11 @@ void write_main_rest_buffer(struct rnd_access_buffer* buffer, int buffer_size, s
 * Se não houver nenhuma posição livre, não escreve nada.
 */
 void write_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, struct operation* op){
-  // TODO
+  struct operation next_prod = *op;
+  while(((buffer->ptrs->in + 1) % buffer_size) == buffer->ptrs->out)
+    ; //buffer is full, waits for it to be advanced by the consumer
+  buffer->buffer[buffer->ptrs->in] = next_prod;
+  buffer->ptrs->in = (buffer->ptrs->in + 1) % buffer_size;
 }
 
 
