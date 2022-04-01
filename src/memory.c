@@ -177,7 +177,10 @@ void read_main_rest_buffer(struct rnd_access_buffer* buffer, int rest_id, int bu
 * Se não houver nenhuma operação disponível, afeta op->id com o valor -1.
 */
 void read_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, struct operation* op){
-  // TODO
+  while(buffer->ptrs->in == buffer->ptrs->out)
+  ; // do nothing
+  *op = buffer->buffer[buffer->ptrs->out];
+  buffer->ptrs->out = (buffer->ptrs->out + 1) % buffer_size;
 }
 
 
