@@ -108,7 +108,7 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
     char *action;
     sscanf(action_line, "%s", action);
     if(strcmp(action, "request") == 0){
-      create_request(op_n, buffers, data);
+      create_request(&op_n, buffers, data);
       continue;
     }
     if(strcmp(action, "status") == 0){
