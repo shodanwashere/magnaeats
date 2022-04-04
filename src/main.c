@@ -8,29 +8,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include "main.h"
 #include "memory.h"
 #include "process.h"
-
-struct main_data {
-	int max_ops;			//número máximo de operações
-	int buffers_size;		//tamanho máximo dos buffers de mem. partilhada
-	
-	int n_restaurants;		//número de restaurantes
-	int n_drivers;			//número de motoristas
-	int n_clients;			//número de clientes
-	
-	int *restaurant_pids;	//process ids de restaurantes
-	int *driver_pids;		//process ids de motoristas
-	int *client_pids;		//process ids de clientes
-	
-	int* restaurant_stats;	//nº de operações encaminhadas por cada restaurante
-	int* driver_stats;		//nº de operações respondidas por cada motorista
-	int* client_stats;		//nº de operações recebidas por cada cliente
-	
-	struct operation* results;	//array com histórico de ops executadas
-	
-	int* terminate; //flag booleana, valor 1 indica que MAGNAEATS deve terminar a sua execução
-};
 
 void main_args(int argc, char* argv[], struct main_data* data){
   //argv[0] -> prog name, irrelevant
@@ -81,15 +63,25 @@ void create_shared_memory_buffers(struct main_data* data, struct communication_b
 */
 void launch_processes(struct communication_buffers* buffers, struct main_data* data){
   int n;
+  int nrest = data->n_restaurants;
+  int ndriv = data->n_drivers;
+  int ncli  = data->n_clients;
+  
   // initiating restaurants
-  for(n = 0; n < data->n_restaurants; n++)
+  for(n = 0; n < nrest; n++){
+    printf("Starting restaurant no. %d\n", n);
     data->restaurant_pids[n] = launch_restaurant(n, buffers, data);
+  }
   // initiating drivers
-  for(n = 0; n < data->n_drivers; n++)
+  for(n = 0; n < ndriv; n++){
+    ("Starting driver no. %d\n", n);
     data->driver_pids[n] = launch_driver(n, buffers, data);
+  }
   // initiating clients
-  for(n = 0; n < data->n_clients; n++)
+  for(n = 0; n < ncli; n++){
+    ("Starting client no. %d\n", n);
     data->client_pids[n] = launch_client(n, buffers, data);
+  }
 }
 
 /* Função que faz interação do utilizador, podendo receber 4 comandos:
@@ -101,27 +93,25 @@ void launch_processes(struct communication_buffers* buffers, struct main_data* d
 void user_interaction(struct communication_buffers* buffers, struct main_data* data){
   char help_msg[] = "Ações disponíveis:\n\trequest client restaurant dish - criar um novo pedido\n\tstatus id - consultar o estado de um pedido\n\tstop - termina a execução do magnaeats\n\thelp - imprime informação sobre as ações disponíveis\n";
   int op_n = 0;
+  printf("%s", help_msg);
   while(*(data->terminate) == 0){
-    printf("Introduzir ação:");
-    char *action_line;
-    gets(action_line);
-    char *action;
-    sscanf(action_line, "%s", action);
-    if(strcmp(action, "request") == 0){
+    fflush(stdin);
+    printf("Introduzir ação: ");
+    char action_line[20];
+    scanf("%s", action_line);
+    if(strcmp(action_line, "request") == 0){
       create_request(&op_n, buffers, data);
       continue;
-    }
-    if(strcmp(action, "status") == 0){
+    } else if(strcmp(action_line, "status") == 0){
       read_status(data);
       continue;
-    }
-    if(strcmp(action, "help") == 0){
+    } else if(strcmp(action_line, "help") == 0){
       printf("%s", help_msg);
       continue;
-    }
-    if(strcmp(action, "stop"))
+    } else if(strcmp(action_line, "stop")){
       stop_execution(data, buffers);
       continue;
+    }
   }
   return;
 }
@@ -133,9 +123,19 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
 */
 void create_request(int* op_counter, struct communication_buffers* buffers, struct main_data* data){
   if(*op_counter < data->max_ops){
-    int client_id; printf("Insira o id do cliente: "); scanf("%d", &client_id);
-    int rest_id; printf("Insira o id do restaurante: "); scanf("%d", &rest_id);
-    char *dish; printf("Escreva o nome do prato (sem espaços): "); fgets(dish, 20, stdin);
+    int client_id;
+    printf("Insira o id do cliente: ");
+    scanf("%d", &client_id);
+    
+    int rest_id;
+    printf("Insira o id do restaurante: ");
+    scanf("%d", &rest_id);
+    
+    char dish[20];
+    printf("Escreva o nome do prato (sem espaços): ");
+    fflush(stdin);
+    fgets(dish, 19, stdin);
+
     struct operation op;
     op.id = *op_counter;
     op.requested_rest = rest_id;
@@ -249,11 +249,18 @@ void destroy_memory_buffers(struct main_data* data, struct communication_buffers
 }
 
 int main(int argc, char* argv[]){
+  if(argc < 5){
+    printf("Uso: magnaeats max_ops buffers_size n_restaurants n_drivers n_clients\nExemplo: %s 10 10 1 1 1\n", argv[0]);
+    exit(-1);
+  }
+
+
   //init data structures
   struct main_data* data = create_dynamic_memory(sizeof(struct main_data));
   struct communication_buffers* buffers = create_dynamic_memory(sizeof(struct communication_buffers));
   //requests are randomly attributed to their respective restaurant
   //there is no order of delivery
+  printf("Spinning up dynamic memory area for communication buffers...\n");
   buffers->main_rest = create_dynamic_memory(sizeof(struct rnd_access_buffer));
   //there must be an available driver to finish the order aka circular buffer
   buffers->rest_driv = create_dynamic_memory(sizeof(struct circular_buffer));
@@ -262,8 +269,10 @@ int main(int argc, char* argv[]){
 
   //execute main code
   main_args(argc, argv, data);
+  printf("Command line arguments siphoned...\n");
   create_dynamic_memory_buffers(data);         // TODO
   create_shared_memory_buffers(data, buffers); // TODO
+  *(data->terminate) = 0;
   launch_processes(buffers, data);             // TODO
   user_interaction(buffers, data);             // TODO
 

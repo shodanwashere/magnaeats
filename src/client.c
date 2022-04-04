@@ -6,8 +6,11 @@
  * 
  */
 
-#include "memory.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include "main.h"
+#include "memory.h"
+#include "client.h"
 
 int execute_client(int client_id, struct communication_buffers* buffers, struct main_data* data){
     int nops = 0;
@@ -15,6 +18,7 @@ int execute_client(int client_id, struct communication_buffers* buffers, struct 
         struct operation op;
         client_get_operation(&op, client_id, buffers, data);
         if(*(data->terminate) == 0 && op.id != -1){
+            printf("Cliente recebeu pedido!\n");
             client_process_operation(&op, client_id, data, &nops);
         }
     }

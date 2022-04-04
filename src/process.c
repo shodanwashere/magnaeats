@@ -17,39 +17,30 @@
 
 int launch_restaurant(int restaurant_id, struct communication_buffers* buffers, struct main_data* data){
   // TODO preemptive forking action
-  int restaurant_process;
-  if((restaurant_process = fork()) == -1){
-    // do what? please elaborate on discord, i actually dont know
-    exit(-1);
-  }
+  int restaurant_process = 0;
+  restaurant_process = fork();
   if(restaurant_process == 0)
-    execute_restaurant(0, buffers, data);
+    execute_restaurant(restaurant_id, buffers, data);
 
   return restaurant_process;
 }
 
 int launch_driver(int driver_id, struct communication_buffers* buffers, struct main_data* data){
   // TODO preemptive forking action
-  int driver_process;
-  if((driver_process = fork()) == -1){
-    // do what? please elaborate on discord, i actually dont know
-    exit(-1);
-  }
+  int driver_process = 0;
+  driver_process = fork();
   if(driver_process == 0)
-    execute_driver(0, buffers, data);
+    execute_driver(driver_id, buffers, data);
 
   return driver_process;
 }
 
 int launch_client(int client_id, struct communication_buffers* buffers, struct main_data* data){
   // TODO preemptive forking action
-  int client_process;
-  if((client_process = fork()) == -1){
-    // do what? please elaborate on discord, i actually dont know
-    exit(-1);
-  }
+  int client_process = 0;
+  client_process = fork();
   if(client_process == 0)
-    execute_driver(0, buffers, data);
+    execute_driver(client_id, buffers, data);
 
   return client_process;
 }

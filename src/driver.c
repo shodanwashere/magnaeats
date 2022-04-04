@@ -6,8 +6,11 @@
  * 
  */
 
-#include "memory.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include "main.h"
+#include "memory.h"
+#include "driver.h"
 
 /* Função principal de um Motorista. Deve executar um ciclo infinito onde em 
 * cada iteração lê uma operação dos restaurantes e se a mesma tiver id 
@@ -24,6 +27,7 @@ int execute_driver(int driver_id, struct communication_buffers* buffers, struct 
         struct operation op;
         driver_receive_operation(&op, buffers, data);
         if(op.id != -1 && *data->terminate == 0){
+            printf("Motorista recebeu pedido!\n");
             driver_process_operation(&op, driver_id, data, &ops);
             driver_send_answer(&op, buffers, data);
         }

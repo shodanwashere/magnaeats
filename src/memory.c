@@ -5,16 +5,6 @@
  * THIS HEADER, THAT MEANS THIS CODE WAS PLAGIARISED!
  * 
  */
-
-#include <stdlib.h>
-#include <strings.h>
-#include <fcntl.h>
-#include <sys/shm.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include "memory.h"
-
 #define STR_SHM_MAIN_REST_PTR 			"SHM_MAIN_REST_PTR"
 #define STR_SHM_MAIN_REST_BUFFER 		"SHM_MAIN_REST_BUFFER"
 #define STR_SHM_REST_DRIVER_PTR 		"SHM_REST_DRIVER_PTR"
@@ -24,44 +14,16 @@
 #define STR_SHM_RESULTS					"SHM_RESULTS"
 #define STR_SHM_TERMINATE				"SHM_TERMINATE"
 
-struct pointers { 																					
-	int in;  																						
-	int out; 																						
-};																								
-
-//estrutura que representa um buffer circular
-struct circular_buffer { 	
-	struct pointers *ptrs;
-	struct operation* buffer;
-};
-
-//estrutura que representa um buffer de acesso aleatório
-struct rnd_access_buffer {
-	int* ptrs;
-	struct operation* buffer;
-};
-
-
-//Estrutura que representa uma operação (pedido/resposta)
-struct operation {
-	int id; 					//id da operação
-	int requested_rest;			//id do restaurante requisitado
-	int requesting_client;		//id do cliente que fez o pedido
-	char* requested_dish;		//nome do(s) prato(s) pedido(s)
-	
-	char status;				//estado da operação
-	int receiving_rest;			//id do restaurante que recebeu pedido
-	int receiving_driver;		//id do motorista que fez entrega
-	int receiving_client;		//id do cliente que recebeu a encomenda
-};
-
-
-//estrutura que agrega os shared memory buffers necessários para comunicação entre processos
-struct communication_buffers {
-	struct rnd_access_buffer* main_rest; 		//buffer para main enviar pedidos a restaurantes
-	struct circular_buffer* rest_driv;	//buffer para restaurantes encaminharem pedidos a motoristas
-	struct rnd_access_buffer* driv_cli;  		//buffer para motoristas entregarem pedidos aos clientes
-};
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include "memory.h"
 
 /* Função que reserva uma zona de memória partilhada com tamanho indicado
 * por size e nome name, preenche essa zona de memória com o valor 0, e
@@ -69,7 +31,7 @@ struct communication_buffers {
 * getuid() a name, para tornar o nome único para o processo.
 */
 void *create_shared_memory(char *name, int size){
-  char *proc_name;
+  char proc_name[50];
   sprintf(proc_name, "/%s%d", name, getuid());
   int shm_fd = shm_open(proc_name, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
   ftruncate(shm_fd, size);
