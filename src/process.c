@@ -53,9 +53,9 @@ int launch_client(int client_id, struct communication_buffers* buffers, struct m
 
 int wait_process(int process_id){
   int status = 0;
-  int wait_ret = waitpid(process_id, &status, 0);
 
-  if(wait_ret == -1) return -1;
+  while(waitpid(process_id, &status, WNOHANG) == 0)
+  ;
 
   if(WIFEXITED(status))
     return WEXITSTATUS(status);

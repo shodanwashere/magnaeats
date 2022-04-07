@@ -46,14 +46,14 @@ void create_dynamic_memory_buffers(struct main_data* data){
 * Para tal, pode ser usada a função create_shared_memory.
 */
 void create_shared_memory_buffers(struct main_data* data, struct communication_buffers* buffers){
-  buffers->main_rest->ptrs = create_shared_memory(STR_SHM_MAIN_REST_PTR, data->buffers_size * sizeof(int));
-  buffers->main_rest->buffer = create_shared_memory(STR_SHM_MAIN_REST_BUFFER, data->buffers_size * sizeof(struct operation));
-  buffers->rest_driv->ptrs = create_shared_memory(STR_SHM_REST_DRIVER_PTR, data->buffers_size * sizeof(struct pointers));
-  buffers->rest_driv->buffer = create_shared_memory(STR_SHM_REST_DRIVER_BUFFER, data->buffers_size * sizeof(struct operation));
-  buffers->driv_cli->ptrs = create_shared_memory(STR_SHM_DRIVER_CLIENT_PTR, data->buffers_size * sizeof(int));
-  buffers->driv_cli->buffer = create_shared_memory(STR_SHM_DRIVER_CLIENT_BUFFER, data->buffers_size * sizeof(struct operation));
-  data->results = create_shared_memory(STR_SHM_RESULTS, data->max_ops * sizeof(struct operation));
-  data->terminate = create_shared_memory(STR_SHM_TERMINATE, sizeof(int));
+  buffers->main_rest->ptrs = (int*) create_shared_memory(STR_SHM_MAIN_REST_PTR, data->buffers_size * sizeof(int));
+  buffers->main_rest->buffer = (struct operation*) create_shared_memory(STR_SHM_MAIN_REST_BUFFER, data->buffers_size * sizeof(struct operation));
+  buffers->rest_driv->ptrs = (struct pointers*) create_shared_memory(STR_SHM_REST_DRIVER_PTR, data->buffers_size * sizeof(struct pointers));
+  buffers->rest_driv->buffer = (struct operation*) create_shared_memory(STR_SHM_REST_DRIVER_BUFFER, data->buffers_size * sizeof(struct operation));
+  buffers->driv_cli->ptrs = (int*) create_shared_memory(STR_SHM_DRIVER_CLIENT_PTR, data->buffers_size * sizeof(int));
+  buffers->driv_cli->buffer = (struct operation*) create_shared_memory(STR_SHM_DRIVER_CLIENT_BUFFER, data->buffers_size * sizeof(struct operation));
+  data->results = (struct operation*) create_shared_memory(STR_SHM_RESULTS, data->max_ops * sizeof(struct operation));
+  data->terminate = (int*) create_shared_memory(STR_SHM_TERMINATE, sizeof(int));
 }
 
 /* Função que inicia os processos dos restaurantes, motoristas e
@@ -74,12 +74,12 @@ void launch_processes(struct communication_buffers* buffers, struct main_data* d
   }
   // initiating drivers
   for(n = 0; n < ndriv; n++){
-    ("Starting driver no. %d\n", n);
+    printf("Starting driver no. %d\n", n);
     data->driver_pids[n] = launch_driver(n, buffers, data);
   }
   // initiating clients
   for(n = 0; n < ncli; n++){
-    ("Starting client no. %d\n", n);
+    printf("Starting client no. %d\n", n);
     data->client_pids[n] = launch_client(n, buffers, data);
   }
 }
@@ -97,9 +97,10 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
   while(*(data->terminate) == 0){
     fflush(stdin);
     printf("Introduzir ação: ");
-    char action_line[20];
+    char *action_line = calloc(20, sizeof(char));
     scanf("%s", action_line);
     if(strcmp(action_line, "request") == 0){
+      fflush(stdin);
       create_request(&op_n, buffers, data);
       continue;
     } else if(strcmp(action_line, "status") == 0){
@@ -108,8 +109,11 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
     } else if(strcmp(action_line, "help") == 0){
       printf("%s", help_msg);
       continue;
-    } else if(strcmp(action_line, "stop")){
+    } else if(strcmp(action_line, "stop") == 0){
       stop_execution(data, buffers);
+      continue;
+    } else {
+      printf("Ação não reconhecida, insira 'help' para assistência\n");
       continue;
     }
   }
@@ -126,20 +130,21 @@ void create_request(int* op_counter, struct communication_buffers* buffers, stru
     int client_id;
     printf("Insira o id do cliente: ");
     scanf("%d", &client_id);
+    printf("Confirmado! client_id :: %d\n", client_id);
     
     int rest_id;
     printf("Insira o id do restaurante: ");
     scanf("%d", &rest_id);
     
-    char dish[20];
+    char *dish = calloc(20, sizeof(char));
     printf("Escreva o nome do prato (sem espaços): ");
-    fflush(stdin);
-    fgets(dish, 19, stdin);
+    scanf("%s", dish);
 
     struct operation op;
     op.id = *op_counter;
     op.requested_rest = rest_id;
-    op.receiving_client = client_id;
+    op.requesting_client = client_id;
+    op.requested_dish = calloc(20, sizeof(char));
     strcpy(op.requested_dish, dish);
     op.status = 'I';
     write_main_rest_buffer(buffers->main_rest, data->buffers_size, &op);
@@ -164,14 +169,14 @@ void read_status(struct main_data* data){
         switch(op.status){
           case 'I' : printf("ainda não foi recebido no restaurante!\n"); break;
           case 'R' : printf("foi tratado pelo restaurante %d, ainda não foi encaminhado para um motorista!\n", op.receiving_rest); break;
-          case 'D' : printf("foi tratado pelo restaurante %d, encaminhado pelo motorista %d, mas ainda não foi recebido pelo cliente!", op.receiving_rest, op.receiving_driver);
-          case 'C' : printf("foi tratado pelo restaurante %d, encaminhado pelo motorista %d, e enviado ao cliente %d!\n", op.receiving_rest, op.receiving_driver, op.receiving_client);
+          case 'D' : printf("foi tratado pelo restaurante %d, encaminhado pelo motorista %d, mas ainda não foi recebido pelo cliente!", op.receiving_rest, op.receiving_driver); break;
+          case 'C' : printf("foi tratado pelo restaurante %d, encaminhado pelo motorista %d, e enviado ao cliente %d!\n", op.receiving_rest, op.receiving_driver, op.receiving_client); break;
         }
       } else {
         printf("O pedido %d ainda não é valido!\n", op_id);
       }
   } else {
-    printf("O pedido %d ainda não é valido!\n", op_id);
+    printf("O id fornecido não é valido!\n", op_id);
   }
 }
 
@@ -185,7 +190,7 @@ void read_status(struct main_data* data){
 void stop_execution(struct main_data* data, struct communication_buffers* buffers){
   *(data->terminate) = 1;
 
-  printf("Terminando o MAGNAEATS!");
+  printf("Terminando o MAGNAEATS!\n");
   wait_processes(data);
   printf("Imprimindo estatísticas:\n");
   write_statistics(data);
@@ -198,9 +203,9 @@ void stop_execution(struct main_data* data, struct communication_buffers* buffer
 */
 void wait_processes(struct main_data* data){
   int n;
-  for(n = 0; n < data->n_restaurants; n++) wait_process(data->restaurant_pids[n]); // waits for the restaurants
-  for(n = 0; n < data->n_drivers; n++) wait_process(data->driver_pids[n]);  // waits for the drivers
-  for(n = 0; n < data->n_clients; n++) wait_process(data->client_pids[n]);  // waits for the clients
+  for(n = 0; n < data->n_restaurants; n++) data->restaurant_stats[n] =  wait_process(data->restaurant_pids[n]); // waits for the restaurants
+  for(n = 0; n < data->n_drivers; n++) data->driver_stats[n] =  wait_process(data->driver_pids[n]);  // waits for the drivers
+  for(n = 0; n < data->n_clients; n++) data->client_stats[n] = wait_process(data->client_pids[n]);  // waits for the clients
 }
 
 /* Função que imprime as estatisticas finais do MAGNAEATS, nomeadamente quantas
