@@ -19,8 +19,10 @@ int launch_restaurant(int restaurant_id, struct communication_buffers* buffers, 
   // TODO preemptive forking action
   int restaurant_process = 0;
   restaurant_process = fork();
-  if(restaurant_process == 0)
-    execute_restaurant(restaurant_id, buffers, data);
+  if(restaurant_process == 0){
+    int nops = execute_restaurant(restaurant_id, buffers, data);
+    exit(nops);
+  }
 
   return restaurant_process;
 }
@@ -29,8 +31,10 @@ int launch_driver(int driver_id, struct communication_buffers* buffers, struct m
   // TODO preemptive forking action
   int driver_process = 0;
   driver_process = fork();
-  if(driver_process == 0)
-    execute_driver(driver_id, buffers, data);
+  if(driver_process == 0){
+    int nops = execute_driver(driver_id, buffers, data);
+    exit(nops);
+  }
 
   return driver_process;
 }
@@ -39,15 +43,19 @@ int launch_client(int client_id, struct communication_buffers* buffers, struct m
   // TODO preemptive forking action
   int client_process = 0;
   client_process = fork();
-  if(client_process == 0)
-    execute_driver(client_id, buffers, data);
+  if(client_process == 0){
+    int nops = execute_client(client_id, buffers, data);
+    exit(nops);
+  }
 
   return client_process;
 }
 
 int wait_process(int process_id){
   int status = 0;
-  waitpid(process_id, &status, 0);
+  int wait_ret = waitpid(process_id, &status, 0);
+
+  if(wait_ret == -1) return -1;
 
   if(WIFEXITED(status))
     return WEXITSTATUS(status);
