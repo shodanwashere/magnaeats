@@ -18,7 +18,7 @@ int execute_restaurant(int rest_id, struct communication_buffers* buffers, struc
   int n;
   while(*(data->terminate) == 0){
     restaurant_receive_operation(&next_consumed, rest_id, buffers, data);
-    if(next_consumed.id != -1 && data->terminate == 0){
+    if(next_consumed.id != -1 && *(data->terminate) == 0){
       printf("Restaurante recebeu pedido!\n");
       restaurant_process_operation(&next_consumed, rest_id, data, &ops_procs);
       restaurant_forward_operation(&next_consumed, buffers, data);

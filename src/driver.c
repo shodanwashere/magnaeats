@@ -26,7 +26,7 @@ int execute_driver(int driver_id, struct communication_buffers* buffers, struct 
     while(*data->terminate == 0){
         struct operation op;
         driver_receive_operation(&op, buffers, data);
-        if(op.id != -1 && *data->terminate == 0){
+        if(op.id != -1 && *(data->terminate) == 0){
             printf("Motorista recebeu pedido!\n");
             driver_process_operation(&op, driver_id, data, &ops);
             driver_send_answer(&op, buffers, data);
@@ -36,7 +36,7 @@ int execute_driver(int driver_id, struct communication_buffers* buffers, struct 
 }
 
 void driver_receive_operation(struct operation* op, struct communication_buffers* buffers, struct main_data* data){
-    if(*data->terminate == 0)
+    if(*(data->terminate) == 0)
         read_rest_driver_buffer(buffers->rest_driv, data->buffers_size, op);
     return;
 }
