@@ -147,6 +147,7 @@ void create_request(int* op_counter, struct communication_buffers* buffers, stru
     op.requested_dish = calloc(20, sizeof(char));
     strcpy(op.requested_dish, dish);
     op.status = 'I';
+    data->results[*op_counter] = op;
     write_main_rest_buffer(buffers->main_rest, data->buffers_size, &op);
     printf("O processo #%d foi criado!", *op_counter);
     *op_counter += 1;
