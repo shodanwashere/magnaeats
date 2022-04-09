@@ -81,7 +81,7 @@ void destroy_dynamic_memory(void* ptr){
 */
 void write_main_rest_buffer(struct rnd_access_buffer* buffer, int buffer_size, struct operation* op){
   int n;
-  int* gottem = 0;
+  int gottem = 0;
   for(n = 0; n < buffer_size && !gottem; n++){
     if(buffer->ptrs[n] == 0){
       buffer->buffer[n] = *op;
@@ -112,7 +112,7 @@ void write_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, s
 */
 void write_driver_client_buffer(struct rnd_access_buffer* buffer, int buffer_size, struct operation* op){
   int n;
-  int* gottem = 0;
+  int gottem = 0;
   for(n = 0; n < buffer_size && !gottem; n++){
     if(buffer->ptrs[n] == 0){
       buffer->buffer[n] = *op;
@@ -152,6 +152,14 @@ void read_main_rest_buffer(struct rnd_access_buffer* buffer, int rest_id, int bu
 * Se não houver nenhuma operação disponível, afeta op->id com o valor -1.
 */
 void read_rest_driver_buffer(struct circular_buffer* buffer, int buffer_size, struct operation* op){
+  if(buffer->ptrs->in != buffer->ptrs->out){
+    while(buffer->ptrs->in == buffer->ptrs->out)
+    buffer->ptrs->out = (buffer->ptrs->out + 1) % buffer_size;
+    ; // do nothing
+  } else {
+    op->id = -1;
+    return;
+  }
   while(buffer->ptrs->in == buffer->ptrs->out)
   ; // do nothing
   *op = buffer->buffer[buffer->ptrs->out];

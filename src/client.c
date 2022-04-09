@@ -14,7 +14,7 @@
 
 int execute_client(int client_id, struct communication_buffers* buffers, struct main_data* data){
     int nops = 0;
-    while(*(data->terminate) == 0){
+    while(*(data->terminate) != 1){
         struct operation op;
         client_get_operation(&op, client_id, buffers, data);
         if(*(data->terminate) == 0 && op.id != -1){
@@ -22,11 +22,12 @@ int execute_client(int client_id, struct communication_buffers* buffers, struct 
             client_process_operation(&op, client_id, data, &nops);
         }
     }
+
     return nops;
 }
 
 void client_get_operation(struct operation* op, int client_id, struct communication_buffers* buffers, struct main_data* data){
-    if(*(data->terminate) == 0)
+    if(*(data->terminate) != 1)
         read_driver_client_buffer(buffers->driv_cli, client_id, data->buffers_size, op);
     return;
 }

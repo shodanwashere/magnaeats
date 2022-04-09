@@ -111,7 +111,7 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
       continue;
     } else if(strcmp(action_line, "stop") == 0){
       stop_execution(data, buffers);
-      continue;
+      return;
     } else {
       printf("Ação não reconhecida, insira 'help' para assistência\n");
       continue;
@@ -177,7 +177,7 @@ void read_status(struct main_data* data){
         printf("O pedido %d ainda não é valido!\n", op_id);
       }
   } else {
-    printf("O id fornecido não é valido!\n", op_id);
+    printf("O id fornecido não é valido!\n");
   }
 }
 
@@ -190,6 +190,7 @@ void read_status(struct main_data* data){
 */
 void stop_execution(struct main_data* data, struct communication_buffers* buffers){
   *(data->terminate) = 1;
+
 
   printf("Terminando o MAGNAEATS!\n");
   wait_processes(data);
