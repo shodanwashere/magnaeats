@@ -69,17 +69,14 @@ void launch_processes(struct communication_buffers* buffers, struct main_data* d
   
   // initiating restaurants
   for(n = 0; n < nrest; n++){
-    printf("Starting restaurant no. %d\n", n);
     data->restaurant_pids[n] = launch_restaurant(n, buffers, data);
   }
   // initiating drivers
   for(n = 0; n < ndriv; n++){
-    printf("Starting driver no. %d\n", n);
     data->driver_pids[n] = launch_driver(n, buffers, data);
   }
   // initiating clients
   for(n = 0; n < ncli; n++){
-    printf("Starting client no. %d\n", n);
     data->client_pids[n] = launch_client(n, buffers, data);
   }
 }
@@ -130,7 +127,6 @@ void create_request(int* op_counter, struct communication_buffers* buffers, stru
     int client_id;
     printf("Insira o id do cliente: ");
     scanf("%d", &client_id);
-    printf("Confirmado! client_id :: %d\n", client_id);
     
     int rest_id;
     printf("Insira o id do restaurante: ");
