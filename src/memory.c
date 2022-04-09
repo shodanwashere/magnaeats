@@ -1,10 +1,19 @@
 /**
- * THIS IS A HEADER COMMENT FOR IN CAMPUS DEVELOPMENT
- * THIS CODE WAS DEVELOPED BY FC56330
- * IF YOU SEE ANOTHER PROJECT WITH A FILE WITH VERY SIMILAR FUNCTION DEFINITIONS BUT WITHOUT
- * THIS HEADER, THAT MEANS THIS CODE WAS PLAGIARISED!
- * 
+ * Grupo SO-011
+ * Autores:
+ * - Nuno Dias, fc56330
+ * - Francisco Maia, fc55855
+ * - Bruna Santos, fc56328
  */
+
+/** 
+ * please ignore the "9+ errors" report
+ * if you're evaluating or reading this
+ * file on VSCode. it is not recognizing
+ * the any of the structures defined in
+ * memory.h
+ */ 
+
 #define STR_SHM_MAIN_REST_PTR 			"SHM_MAIN_REST_PTR"
 #define STR_SHM_MAIN_REST_BUFFER 		"SHM_MAIN_REST_BUFFER"
 #define STR_SHM_REST_DRIVER_PTR 		"SHM_REST_DRIVER_PTR"
