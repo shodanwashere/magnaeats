@@ -1,6 +1,7 @@
 OBJ_dir = obj
 INC_dir = include
-OBJECTS = memory.o main.o process.o restaurant.o driver.o client.o
+OBJECTS = synchronization.o memory.o main.o process.o restaurant.o driver.o client.o
+synchronization.o =
 memory.o =
 main.o = memory.h process.h
 process.o = main.h memory.h restaurant.h driver.h client.h
