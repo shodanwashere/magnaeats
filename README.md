@@ -7,6 +7,7 @@
 ## Updates
 - **1.0** (April 7th, 2:49 PM) :: Successfully delivers a request to a _Restaurant_, which forwards it to a _Driver_, who delivers it to a _Client_ with buffer size at 10, max ops at 10 and 1 _Restaurant_, 1 _Driver_ and 1 _Client_.
 - **1.1** (April 9th, 1:35 AM) :: Bug fixes.
+- **1.2** (May 9th, 11:59 AM) :: Updated and added header files for development of stage 2. Implemented `synchronization.c`.
 ## Building and using
 You can go on a big tour and use **gcc** to compile and link everything, but we recommend using `make` and the supplied Makefile to automate this process:
 ```
