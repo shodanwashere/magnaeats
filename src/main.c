@@ -13,6 +13,7 @@
 #include "main.h"
 #include "memory.h"
 #include "process.h"
+#include "log.h"
 
 void main_args(int argc, char* argv[], struct main_data* data){
   //argv[0] -> prog name, irrelevant
@@ -105,9 +106,11 @@ void user_interaction(struct communication_buffers* buffers, struct main_data* d
       continue;
     } else if(strcmp(action_line, "help") == 0){
       printf("%s", help_msg);
+      log(data->log_file, action_line, strlen(action_line));
       continue;
     } else if(strcmp(action_line, "stop") == 0){
       stop_execution(data, buffers);
+      log(data->log_file, action_line, strlen(action_line))
       return;
     } else {
       printf("Ação não reconhecida, insira 'help' para assistência\n");
@@ -147,6 +150,13 @@ void create_request(int* op_counter, struct communication_buffers* buffers, stru
     write_main_rest_buffer(buffers->main_rest, data->buffers_size, &op);
     printf("O processo #%d foi criado!", *op_counter);
     *op_counter += 1;
+    char cli[3];
+    itoa(client_id, cli, 10);
+    char rest[3];
+    itoa(rest_id, rest, 10);
+    log(data->log_file, "request", strlen("request"), cli, rest, dish);
+  
+    free(dish);
   }
 }
 
@@ -175,6 +185,9 @@ void read_status(struct main_data* data){
   } else {
     printf("O id fornecido não é valido!\n");
   }
+  char oper[3];
+  itoa(op_id, oper, 10);
+  log(data->log_file, "status", strlen("status"), oper);
 }
 
 /* Função que termina a execução do programa MAGNAEATS. Deve começar por
@@ -257,7 +270,6 @@ int main(int argc, char* argv[]){
     exit(-1);
   }
 
-
   //init data structures
   struct main_data* data = create_dynamic_memory(sizeof(struct main_data));
   struct communication_buffers* buffers = create_dynamic_memory(sizeof(struct communication_buffers));
@@ -273,11 +285,11 @@ int main(int argc, char* argv[]){
   //execute main code
   main_args(argc, argv, data);
   printf("Command line arguments siphoned...\n");
-  create_dynamic_memory_buffers(data);         // TODO
-  create_shared_memory_buffers(data, buffers); // TODO
+  create_dynamic_memory_buffers(data);         
+  create_shared_memory_buffers(data, buffers);
   *(data->terminate) = 0;
-  launch_processes(buffers, data);             // TODO
-  user_interaction(buffers, data);             // TODO
+  launch_processes(buffers, data);           
+  user_interaction(buffers, data);          
 
   //release memory before terminating
   destroy_dynamic_memory(data);
