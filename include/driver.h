@@ -13,26 +13,26 @@
 * número de operações processadas. Para efetuar estes passos, pode usar os
 * outros métodos auxiliares definidos em driver.h.
 */
-int execute_driver(int driver_id, struct communication_buffers* buffers, struct main_data* data, struct semaphores* sems);
+int execute_driver(int driver_id, struct communication_buffers* buffers, struct main_data* data);
 
 
 /* Função que lê uma operação do buffer de memória partilhada entre restaurantes e motoristas.
 * Antes de tentar ler a operação, deve verificar se data->terminate tem valor 1.
 * Em caso afirmativo, retorna imediatamente da função.
 */
-void driver_receive_operation(struct operation* op, struct communication_buffers* buffers, struct main_data* data, struct semaphores* sems);
+void driver_receive_operation(struct operation* op, struct communication_buffers* buffers, struct main_data* data);
 
 
 /* Função que processa uma operação, alterando o seu campo receiving_driver para o id
 * passado como argumento, alterando o estado da mesma para 'D' (driver), e 
 * incrementando o contador de operações. Atualiza também a operação na estrutura data.
 */
-void driver_process_operation(struct operation* op, int driver_id, struct main_data* data, int* counter, struct semaphores* sems);
+void driver_process_operation(struct operation* op, int driver_id, struct main_data* data, int* counter);
 
 
 /* Função que escreve uma operação no buffer de memória partilhada entre
 * motoristas e clientes.
 */
-void driver_send_answer(struct operation* op, struct communication_buffers* buffers, struct main_data* data, struct semaphores* sems);
+void driver_send_answer(struct operation* op, struct communication_buffers* buffers, struct main_data* data);
 
 #endif
