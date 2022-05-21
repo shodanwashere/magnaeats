@@ -24,6 +24,11 @@ struct main_data {
 	struct operation* results;	//array com histórico de ops executadas
 	
 	int* terminate; //flag booleana, valor 1 indica que magnaeats deve terminar a sua execução
+
+	FILE* log_file;
+	FILE* statistics_file;
+
+	int alarm_time;
 };
 
 
