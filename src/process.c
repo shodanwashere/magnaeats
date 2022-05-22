@@ -11,40 +11,41 @@
 #include "restaurant.h"
 #include "driver.h"
 #include "client.h"
+#include "synchronization.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
-int launch_restaurant(int restaurant_id, struct communication_buffers* buffers, struct main_data* data){
+int launch_restaurant(int restaurant_id, struct communication_buffers* buffers, struct main_data* data, struct semaphores* sems){
   // TODO preemptive forking action
   int restaurant_process = 0;
   restaurant_process = fork();
   if(restaurant_process == 0){
-    int nops = execute_restaurant(restaurant_id, buffers, data);
+    int nops = execute_restaurant(restaurant_id, buffers, data, sems);
     exit(nops);
   }
 
   return restaurant_process;
 }
 
-int launch_driver(int driver_id, struct communication_buffers* buffers, struct main_data* data){
+int launch_driver(int driver_id, struct communication_buffers* buffers, struct main_data* data, struct semaphores* sems){
   // TODO preemptive forking action
   int driver_process = 0;
   driver_process = fork();
   if(driver_process == 0){
-    int nops = execute_driver(driver_id, buffers, data);
+    int nops = execute_driver(driver_id, buffers, data, sems);
     exit(nops);
   }
 
   return driver_process;
 }
 
-int launch_client(int client_id, struct communication_buffers* buffers, struct main_data* data){
+int launch_client(int client_id, struct communication_buffers* buffers, struct main_data* data, struct semaphores* sems){
   // TODO preemptive forking action
   int client_process = 0;
   client_process = fork();
   if(client_process == 0){
-    int nops = execute_client(client_id, buffers, data);
+    int nops = execute_client(client_id, buffers, data, sems);
     exit(nops);
   }
 

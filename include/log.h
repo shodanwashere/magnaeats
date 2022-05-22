@@ -15,7 +15,7 @@ int write_log(FILE *logfile, char* line);
 int close_logfile(FILE *logfile);
 
 // Log the latest action
-void log(FILE *logfile, char* action, int action_size, char* args, ...);
+void log(FILE *logfile, char* action, int action_size, int args, ...);
 
 // Write a log explaining an error
 void logerr(FILE *logfile, char* err_msg);

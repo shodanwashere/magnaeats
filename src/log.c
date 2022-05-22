@@ -4,8 +4,8 @@
 #include "log.h"
 #include "metime.h"
 
-FILE * open_logfile(char *name){
-    return fopen(name, "a");
+FILE * open_logfile(struct main_data* data){
+    return fopen(data->log_filename, "a");
 }
 
 void generate_log_line(char* action, char* output){

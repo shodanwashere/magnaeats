@@ -1,20 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include "synchronization.h"
 
 sem_t * semaphore_create(char* name, int value){
-    sem_t * sem = sem_open(name, O_RDWR, S_IRWXU, value);
+    int uid = getuid();
+    char newname[50];
+    sprintf(newname, "%s%d", name, uid);
+    sem_t * sem = sem_open(newname, O_RDWR, S_IRWXU, value);
     return sem;
 }
 
 void semaphore_destroy(char *name, sem_t *semaphore){
+    int uid = getuid();
+    char todestroy[50];
+    sprintf(todestroy, "%s%d", name, uid);
+    
     int e;
     if((e = sem_close(semaphore)) == -1){
         perror("what");
         exit(-1);
     }
-    if((e = sem_unlink(name)) == -1){
+    if((e = sem_unlink(todestroy)) == -1){
         perror("how");
         exit(-1);
     }
